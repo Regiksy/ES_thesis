@@ -1,6 +1,8 @@
 using sysbus
 
-mach create
+$name? = "STM32F103"
+
+mach create $name
 machine LoadPlatformDescription @platforms/cpus/stm32f103.repl
 machine LoadPlatformDescriptionFromString "button: Miscellaneous.Button @ gpioPortC 13 { IRQ -> gpioPortC@13 }"
 
