@@ -1,0 +1,15 @@
+//All onboard peripherals are added here.
+
+using "platforms/cpus/stm32f103_modded.repl"
+
+SW1: Miscellaneous.Button @ gpioPortC
+    -> gpioPortC@11
+    
+//L_button: Miscellaneous.Button @ gpioPortB
+//   -> gpioPortB@15
+
+LED: Miscellaneous.LED @ gpioPortA
+
+gpioPortA:
+    5 -> LED@0
+

@@ -1,15 +1,50 @@
 using sysbus
 
-$name? = "STM32F103"
+:$name? ="STM32F103"
 
-mach create $name
-machine LoadPlatformDescription @platforms/cpus/stm32f103.repl
-machine LoadPlatformDescriptionFromString "button: Miscellaneous.Button @ gpioPortC 13 { IRQ -> gpioPortC@13 }"
+mach create "STM32F103":$name
+:logLevel 2
+logFile @scripts/my-scripts/Log-trace.log
 
-$bin?=@https://dl.antmicro.com/projects/renode/zephyr-stm32f103-button.elf-s_276760-1bf32c99bbb3c01d81e13ca68118eaf08b2a815f
 
-showAnalyzer usart2
+:machine LoadPlatformDescription @platforms/cpus/stm32f103.repl
+:machine LoadPlatformDescription @platforms/cpus/stm32f103_modded.repl
+machine LoadPlatformDescription @platforms/boards/stm32f103_board.repl
+:machine LoadPlatformDescription @Home/stm32f103mod.repl
 
+:machine StartGdbServer 3333
+cpu PerformanceInMips 1
+:machine LoadPlatformDescriptionFromString "L_button: Miscellaneous.Button @ gpioPortB 15 { IRQ -> gpioPortB@15 }"
+
+machine LoadPlatformDescriptionFromString "SW3: Miscellaneous.Button @ gpioPortC 11 { IRQ -> gpioPortC@11 }"
+
+:machine LoadPlatformDescriptionFromString "LED: Miscellaneous.LED @ gpioPortA 5"
+
+
+logFile @/tmp/function-trace.log
+:sysbus.cpu LogFunctionNames true
+:sysbus LogAllPeripheralsAccess true
+:sysbus.cpu LogFunctionNames true "DIP_test"
+
+logLevel -1 sysbus.gpioPortA.LED
+:logLevel 3 sysbus.gpioPortA.LED
+
+:machine EnableGdbLogging 
+
+
+:$bin?=@/home/osboxes/Downloads/F103RB_pingpong_noCLK_tick32M.elf
+:$bin?=@/home/osboxes/Downloads/F103RB_pingpongLED_noCLK_Init.elf
+
+$bin?=@/home/osboxes/Downloads/F103RB_pingpong_noCLK_noTIM_DIP_LED_test2.elf
+
+#:$bin?=@/home/osboxes/Downloads/F103RB_pingpon_InitAll.elf
+
+#:$bin?=@/home/osboxes/Downloads/F103RB_pingpong_noCLK2.elf
+#:$bin?=@/home/osboxes/Downloads/F103RB_pingpong_noSyscloc_noTim.elf :No RCC errors
+#:$bin?=@/home/osboxes/Downloads/F103RB_pingpong_noTim.elf
+#:showAnalyzer usart2
+#:showAnalyzer LED
+#*/
 macro reset
 """
     sysbus LoadELF $bin
